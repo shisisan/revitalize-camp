@@ -6,7 +6,7 @@ import { t } from "@rbxts/t";
 import type { PlayerData } from "shared/store/persistent";
 import { selectPlayerData } from "shared/store/persistent";
 
-import { store } from "../store";
+import { store } from "server/store";
 import type { PlayerEntity } from "./player-entity";
 import type { OnPlayerJoin, OnPlayerLeave } from "./player-service";
 

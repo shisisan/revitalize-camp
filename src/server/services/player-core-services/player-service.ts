@@ -14,7 +14,7 @@ import { setupLifecycle } from "shared/util/flamework-util";
 import { onPlayerAdded, promisePlayerDisconnected } from "shared/util/player-util";
 import KickCode from "types/enum/kick-reason";
 
-import type { PlayerDataService } from "./data/player-data-service";
+import type { PlayerDataService } from "../player-data-services/player-data-service";
 import { PlayerEntity } from "./player-entity";
 import type { PlayerRemovalService } from "./player-removal-service";
 

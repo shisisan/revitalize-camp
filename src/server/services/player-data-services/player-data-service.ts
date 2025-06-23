@@ -11,7 +11,7 @@ import type { PlayerData } from "shared/store/persistent";
 import { defaultPlayerData, selectPlayerData } from "shared/store/persistent";
 import KickCode from "types/enum/kick-reason";
 
-import type { PlayerRemovalService } from "../player-removal-service";
+import type { PlayerRemovalService } from "../player-core-services/player-removal-service";
 import { validate } from "./validate-data";
 
 const DATA_STORE_NAME = RunService.IsStudio() ? "Development" : "Production";

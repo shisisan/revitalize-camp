@@ -12,8 +12,8 @@ import { noYield } from "shared/util/no-yield";
 import { GamePass, Product } from "types/enum/mtx";
 
 import { Events } from "./network";
-import type { PlayerEntity } from "./player/player-entity";
-import type { OnPlayerJoin, PlayerService } from "./player/player-service";
+import type { PlayerEntity } from "./services/player-core-services/player-entity";
+import type { OnPlayerJoin, PlayerService } from "./services/player-core-services/player-service";
 import { store } from "./store";
 
 const NETWORK_RETRY_DELAY = 2;

@@ -18,8 +18,8 @@ import {
 import CollisionGroup from "types/enum/collision-group";
 import { Tag } from "types/enum/tag";
 
-import type { PlayerEntity } from "../player-entity";
-import type { OnPlayerJoin } from "../player-service";
+import type { PlayerEntity } from "../../services/player-core-services/player-entity";
+import type { OnPlayerJoin } from "../../services/player-core-services/player-service";
 
 PhysicsService.RegisterCollisionGroup(CollisionGroup.Character);
 

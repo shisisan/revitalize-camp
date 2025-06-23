@@ -3,8 +3,8 @@ import Log from "@rbxts/log";
 
 import type { ServerResponse } from "types/interfaces/network";
 
-import type { PlayerEntity } from "./player-entity";
-import type { PlayerService } from "./player-service";
+import type { PlayerEntity } from "server/services/player-core-services/player-entity";
+import type { PlayerService } from "server/services/player-core-services/player-service";
 
 let playerService: PlayerService | undefined;
 
