@@ -1,19 +1,19 @@
-import { $NODE_ENV } from "rbxts-transform-env";
+import { $NODE_ENV } from 'rbxts-transform-env';
 
 export enum GameId {
-	Development = 6031475575,
-	Production = 6110424408,
+    Development = 7989496185,
+    Production = 7983173136,
 }
 
 function IsGameId(value: number): value is GameId {
-	return value in GameId;
+    return value in GameId;
 }
 
 export function getConfigValueForGame<const T>(gameIdToValueTable: Record<GameId, T>): T {
-	if ($NODE_ENV === "development" && game.PlaceId === 0) {
-		return gameIdToValueTable[GameId.Development];
-	}
+    if ($NODE_ENV === 'development' && game.PlaceId === 0) {
+        return gameIdToValueTable[GameId.Development];
+    }
 
-	assert(IsGameId(game.GameId), `Invalid game id for place: ${game.GameId}`);
-	return gameIdToValueTable[game.GameId];
+    assert(IsGameId(game.GameId), `Invalid game id for place: ${game.GameId}`);
+    return gameIdToValueTable[game.GameId];
 }

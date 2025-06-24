@@ -1,10 +1,10 @@
-import { Dependency } from "@flamework/core";
-import Log from "@rbxts/log";
+import { Dependency } from '@flamework/core';
+import Log from '@rbxts/log';
 
-import type { ServerResponse } from "types/interfaces/network";
+import type { ServerResponse } from 'types/interfaces/network';
 
-import type { PlayerEntity } from "server/services/player-core-services/player-entity";
-import type { PlayerService } from "server/services/player-core-services/player-service";
+import type { PlayerEntity } from 'server/services/player-core-services/player-entity';
+import type { PlayerService } from 'server/services/player-core-services/player-service';
 
 let playerService: PlayerService | undefined;
 
@@ -19,28 +19,28 @@ let playerService: PlayerService | undefined;
  * @returns The server response.
  */
 export function withPlayerEntity<T extends Array<unknown>>(
-	func: (playerEntity: PlayerEntity, ...args: T) => undefined | void,
+    func: (playerEntity: PlayerEntity, ...args: T) => undefined | void,
 ): (player: Player, ...args: T) => ServerResponse {
-	playerService ??= Dependency<PlayerService>();
+    playerService ??= Dependency<PlayerService>();
 
-	return (player: Player, ...args: T) => {
-		// eslint-disable-next-line ts/no-non-null-assertion -- We check for this above.
-		const entity = playerService!.getPlayerEntity(player);
-		if (entity) {
-			return identity<ServerResponse>({
-				data: func(entity, ...args),
-				success: true,
-			});
-		}
+    return (player: Player, ...args: T) => {
+        // eslint-disable-next-line ts/no-non-null-assertion -- We check for this above.
+        const entity = playerService!.getPlayerEntity(player);
+        if (entity) {
+            return identity<ServerResponse>({
+                data: func(entity, ...args),
+                success: true,
+            });
+        }
 
-		Log.Error(
-			`Unable to find entity for player ${player}, unable to call callback. Stacktrace: \n` +
-				debug.traceback(),
-		);
+        Log.Error(
+            `Unable to find entity for player ${player}, unable to call callback. Stacktrace: \n` +
+                debug.traceback(),
+        );
 
-		return identity<ServerResponse>({
-			error: "Internal error",
-			success: false,
-		});
-	};
+        return identity<ServerResponse>({
+            error: 'Internal error',
+            success: false,
+        });
+    };
 }
