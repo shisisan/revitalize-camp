@@ -1,7 +1,7 @@
-import { useViewport } from "@rbxts/pretty-react-hooks";
-import React from "@rbxts/react";
+import { useViewport } from '@rbxts/pretty-react-hooks';
+import React from '@rbxts/react';
 
-import { Group } from "./primitive/group";
+import { Group } from './group';
 
 const MAX_ASPECT_RATIO = 19 / 9;
 const BASE_RESOLUTION = new Vector2(1920, 1020);
@@ -19,29 +19,29 @@ type UltraWideContainerProps = React.PropsWithChildren;
  * @see https://github.com/Quenty/NevermoreEngine/tree/a9256cab3584bea4bd32c327d00b9a52f2a3ec95/src/ultrawidecontainerutils
  */
 export function UltraWideContainer({
-	children,
+    children,
 }: Readonly<UltraWideContainerProps>): React.ReactNode {
-	const viewport = useViewport();
+    const viewport = useViewport();
 
-	return (
-		<Group>
-			<uisizeconstraint
-				MaxSize={viewport.map(size => {
-					const resolution = new Vector2(
-						math.min(size.X, size.Y * MAX_ASPECT_RATIO),
-						size.Y,
-					);
-					const scale = resolution.Magnitude / BASE_RESOLUTION.Magnitude;
-					const desktop = resolution.X > resolution.Y || scale >= 1;
-					if (!desktop) {
-						return new Vector2(1920, 1080);
-					}
+    return (
+        <Group>
+            <uisizeconstraint
+                MaxSize={viewport.map((size) => {
+                    const resolution = new Vector2(
+                        math.min(size.X, size.Y * MAX_ASPECT_RATIO),
+                        size.Y
+                    );
+                    const scale = resolution.Magnitude / BASE_RESOLUTION.Magnitude;
+                    const desktop = resolution.X > resolution.Y || scale >= 1;
+                    if (!desktop) {
+                        return new Vector2(1920, 1080);
+                    }
 
-					return new Vector2(1920 * scale, size.Y);
-				})}
-			/>
+                    return new Vector2(1920 * scale, size.Y);
+                })}
+            />
 
-			{children}
-		</Group>
-	);
+            {children}
+        </Group>
+    );
 }

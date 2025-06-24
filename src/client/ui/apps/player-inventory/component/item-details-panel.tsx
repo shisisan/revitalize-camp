@@ -1,7 +1,7 @@
-import React from "@rbxts/react";
-import { InventoryItem } from "../types";
-import { getRarityColor, formatItemValue } from "../utils/inventory-utils";
-import { UI_COLORS } from "../constants";
+import React from '@rbxts/react';
+import { InventoryItem } from '../types';
+import { getRarityColor, formatItemValue } from '../utils/inventory-utils';
+import { UI_COLORS } from '../constants';
 
 interface ItemDetailsPanelProps {
     item: InventoryItem;
@@ -17,7 +17,7 @@ export function ItemDetailsPanel({ item, onUse }: ItemDetailsPanelProps): React.
             BorderSizePixel={0}
         >
             <uicorner CornerRadius={new UDim(0, 8)} />
-            
+
             {/* Item Name */}
             <textlabel
                 Position={new UDim2(0, 10, 0, 5)}
@@ -29,7 +29,7 @@ export function ItemDetailsPanel({ item, onUse }: ItemDetailsPanelProps): React.
                 Font={Enum.Font.GothamBold}
                 TextXAlignment={Enum.TextXAlignment.Left}
             />
-            
+
             {/* Item Value */}
             {item.value !== undefined && item.value !== undefined && (
                 <textlabel
@@ -43,7 +43,7 @@ export function ItemDetailsPanel({ item, onUse }: ItemDetailsPanelProps): React.
                     TextXAlignment={Enum.TextXAlignment.Right}
                 />
             )}
-            
+
             {/* Item Description */}
             <textlabel
                 Position={new UDim2(0, 10, 0, 30)}
@@ -57,7 +57,7 @@ export function ItemDetailsPanel({ item, onUse }: ItemDetailsPanelProps): React.
                 TextXAlignment={Enum.TextXAlignment.Left}
                 TextYAlignment={Enum.TextYAlignment.Top}
             />
-            
+
             {/* Use Button */}
             <textbutton
                 Position={new UDim2(1, -100, 0, 10)}
@@ -68,12 +68,12 @@ export function ItemDetailsPanel({ item, onUse }: ItemDetailsPanelProps): React.
                 TextScaled={true}
                 Font={Enum.Font.GothamBold}
                 Event={{
-                    MouseButton1Click: () => onUse(item)
+                    MouseButton1Click: () => onUse(item),
                 }}
             >
                 <uicorner CornerRadius={new UDim(0, 6)} />
             </textbutton>
-            
+
             {/* Drop Button */}
             <textbutton
                 Position={new UDim2(1, -100, 0, 45)}
@@ -87,7 +87,7 @@ export function ItemDetailsPanel({ item, onUse }: ItemDetailsPanelProps): React.
                     MouseButton1Click: () => {
                         // Handle drop logic
                         print(`Dropping ${item.name}`);
-                    }
+                    },
                 }}
             >
                 <uicorner CornerRadius={new UDim(0, 6)} />

@@ -1,15 +1,15 @@
-import React from "@rbxts/react";
+import React from '@rbxts/react';
 
-import { GAME_NAME } from "shared/constants";
+import { GAME_NAME } from 'shared/constants/index';
 
 interface Storybook {
-	name: string;
-	react?: typeof React;
-	storyRoots: Array<Instance | undefined>;
+    name: string;
+    react?: typeof React;
+    storyRoots: Array<Instance | undefined>;
 }
 
 export = identity<Storybook>({
-	name: GAME_NAME,
-	react: React,
-	storyRoots: [script.Parent],
+    name: GAME_NAME,
+    react: React,
+    storyRoots: [script.Parent],
 });

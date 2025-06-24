@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from "@rbxts/react";
-import { Players, RunService } from "@rbxts/services";
+import React, { useEffect, useState, useCallback } from '@rbxts/react';
+import { Players, RunService } from '@rbxts/services';
 
 interface PlayerHealthBarProps {
     showPlayerName?: boolean;
@@ -16,11 +16,11 @@ export function PlayerHealthBar({
     backgroundColor = Color3.fromRGB(52, 73, 94),
     cornerRadius = 8,
     position = new UDim2(0, 20, 0, 20),
-    size = new UDim2(0, 300, 0, 60)
+    size = new UDim2(0, 300, 0, 60),
 }: PlayerHealthBarProps): React.ReactNode {
     const [health, setHealth] = useState(100);
     const [maxHealth, setMaxHealth] = useState(100);
-    const [playerName, setPlayerName] = useState("");
+    const [playerName, setPlayerName] = useState('');
     const [isAlive, setIsAlive] = useState(true);
 
     // Get player reference
@@ -29,7 +29,7 @@ export function PlayerHealthBar({
     // Update health values
     const updateHealthData = useCallback(() => {
         if (player.Character) {
-            const humanoid = player.Character.FindFirstChild("Humanoid") as Humanoid;
+            const humanoid = player.Character.FindFirstChild('Humanoid') as Humanoid;
             if (humanoid) {
                 setHealth(humanoid.Health);
                 setMaxHealth(humanoid.MaxHealth);
@@ -42,14 +42,14 @@ export function PlayerHealthBar({
     // Setup health monitoring
     useEffect(() => {
         let connection: RBXScriptConnection | undefined;
-        
+
         const setupHealthMonitoring = () => {
             if (player.Character) {
-                const humanoid = player.Character.FindFirstChild("Humanoid") as Humanoid;
+                const humanoid = player.Character.FindFirstChild('Humanoid') as Humanoid;
                 if (humanoid) {
                     // Initial update
                     updateHealthData();
-                    
+
                     // Listen for health changes
                     connection = humanoid.HealthChanged.Connect(() => {
                         updateHealthData();
@@ -77,8 +77,8 @@ export function PlayerHealthBar({
     }, [player, updateHealthData]);
 
     // Calculate health percentage
-    const healthPercentage = maxHealth > 0 ? (health / maxHealth) : 0;
-    
+    const healthPercentage = maxHealth > 0 ? health / maxHealth : 0;
+
     // Dynamic color based on health
     const getDynamicHealthColor = useCallback(() => {
         if (healthPercentage > 0.6) {
@@ -99,7 +99,7 @@ export function PlayerHealthBar({
         >
             {/* Corner Radius */}
             <uicorner CornerRadius={new UDim(0, cornerRadius)} />
-            
+
             {/* Player Name (Optional) */}
             {showPlayerName && (
                 <textlabel
@@ -113,7 +113,7 @@ export function PlayerHealthBar({
                     Font={Enum.Font.GothamBold}
                 />
             )}
-            
+
             {/* Health Bar Container */}
             <frame
                 Position={showPlayerName ? new UDim2(0, 10, 0, 25) : new UDim2(0, 10, 0, 10)}
@@ -123,7 +123,7 @@ export function PlayerHealthBar({
                 BorderSizePixel={0}
             >
                 <uicorner CornerRadius={new UDim(0, 4)} />
-                
+
                 {/* Health Bar Fill */}
                 <frame
                     Position={new UDim2(0, 2, 0, 2)}
@@ -132,7 +132,7 @@ export function PlayerHealthBar({
                     BorderSizePixel={0}
                 >
                     <uicorner CornerRadius={new UDim(0, 2)} />
-                    
+
                     {/* Health Bar Glow Effect */}
                     {isAlive && (
                         <frame
@@ -145,7 +145,7 @@ export function PlayerHealthBar({
                         </frame>
                     )}
                 </frame>
-                
+
                 {/* Health Text */}
                 <textlabel
                     Size={new UDim2(1, 0, 1, 0)}
@@ -158,7 +158,7 @@ export function PlayerHealthBar({
                     TextStrokeColor3={Color3.fromRGB(0, 0, 0)}
                 />
             </frame>
-            
+
             {/* Death Overlay */}
             {!isAlive && (
                 <frame

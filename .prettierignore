@@ -1,0 +1,9 @@
+# Folders
+/.cache
+/.git
+/dist
+/out
+/include
+/assets
+/node_modules
+/temp

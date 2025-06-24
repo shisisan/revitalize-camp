@@ -1,9 +1,10 @@
-asset_dir = "assets"
-write_dir = "src/shared/"
+[inputs.assets]
+path = "assets/**/*"
+output_path = "src/shared/assets"
 
 [creator]
-type = "user"
-id = 4027923557
+type = "group"
+id = 160743627
 
 [codegen]
 output_name = "assets"
