@@ -8,6 +8,9 @@ import { Alerts } from './alerts';
 import { sendAlert } from 'client/alerts';
 import { palette } from 'shared/constants/palette';
 import { sounds } from 'shared/assets/assets';
+import { Dependency } from '@flamework/core';
+import type { DataService } from 'server/services/third-party/firebase-data-service';
+import { Players } from '@rbxts/services';
 
 export function App(): React.ReactNode {
     const [count, setCount] = React.useState(0);
@@ -31,12 +34,14 @@ export function App(): React.ReactNode {
                         print(`Selected: ${item?.name}`);
                     }}
                     onItemUse={(item) => {
-                        sendAlert({
-                            emoji: '🧪',
-                            color: palette.yellow,
-                            message: `item Used ${item?.name} !`,
-                            sound: sounds['alert_money.ogg'],
-                        });
+                        if (item.rarity === 'epic') {
+                            sendAlert({
+                                emoji: '🧪',
+                                color: palette.yellow,
+                                message: `item Used ${item?.name} !`,
+                                sound: sounds['alert_money.ogg'],
+                            });
+                        }
                         print(`Used: ${item?.name}`);
                     }}
                     onItemDrop={(item, from, to) => {

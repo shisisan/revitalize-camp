@@ -23,6 +23,17 @@ export const balanceSlice = createProducer(initialState, {
 		};
 	},
 
+	setBalance: (state, player: string, amount: number): BalanceState => {
+		const balance = state[player];
+		return {
+			...state,
+			[player]: balance && {
+				...balance,
+				currency: amount,
+			},
+		};
+	},
+
 	giveCurrency: (state, player: string, amount: number): BalanceState => {
 		const balance = state[player];
 		return {

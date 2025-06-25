@@ -7,14 +7,39 @@ import { Players, RunService } from "@rbxts/services";
 
 import { $NODE_ENV } from "rbxts-transform-env";
 import { store } from "server/store";
-import type { PlayerData } from "shared/store/persistent";
+import type { PlayerData as ReflexPlayerData } from "shared/store/persistent";
 import { defaultPlayerData, selectPlayerData } from "shared/store/persistent";
 import KickCode from "types/enum/kick-reason";
 
+import type { PlayerData as FirebasePlayerData } from "shared/constants/player-data-model";
+import { DataService as FirebaseDataService } from "../third-party/firebase-data-service";
 import type { PlayerRemovalService } from "../player-core-services/player-removal-service";
 import { validate } from "./validate-data";
 
 const DATA_STORE_NAME = RunService.IsStudio() ? "Development" : "Production";
+
+const mapReflexToFirebase = (data: ReflexPlayerData): FirebasePlayerData => ({
+	coins: data.balance.currency,
+	purchaseHistory: data.mtx.receiptHistory,
+});
+
+const mapFirebaseToReflex = (
+	firebaseData: FirebasePlayerData,
+	defaultData: ReflexPlayerData,
+): ReflexPlayerData => {
+	const history = firebaseData.purchaseHistory;
+	return {
+		...defaultData,
+		balance: {
+			...defaultData.balance,
+			currency: firebaseData.coins,
+		},
+		mtx: {
+			...defaultData.mtx,
+			receiptHistory: history ? table.clone(history) : [],
+		},
+	};
+};
 
 /**
  * Service for loading and saving player data. This service is responsible for
@@ -23,11 +48,12 @@ const DATA_STORE_NAME = RunService.IsStudio() ? "Development" : "Production";
  */
 @Service({})
 export class PlayerDataService {
-	private readonly collection: Collection<PlayerData>;
+	private readonly collection: Collection<ReflexPlayerData>;
 
 	constructor(
 		private readonly logger: Logger,
 		private readonly playerRemovalService: PlayerRemovalService,
+		private readonly firebaseDataService: FirebaseDataService,
 	) {
 		if ($NODE_ENV === "development" && RunService.IsStudio()) {
 			setConfig({
@@ -35,7 +61,7 @@ export class PlayerDataService {
 			});
 		}
 
-		this.collection = createCollection<PlayerData>(DATA_STORE_NAME, {
+		this.collection = createCollection<ReflexPlayerData>(DATA_STORE_NAME, {
 			defaultData: defaultPlayerData,
 			validate,
 		});
@@ -47,8 +73,11 @@ export class PlayerDataService {
 	 * @param player - The player to load data for.
 	 * @returns The player data document if it was loaded successfully.
 	 */
-	public async loadPlayerData(player: Player): Promise<Document<PlayerData> | void> {
+	public async loadPlayerData(player: Player): Promise<Document<ReflexPlayerData> | void> {
 		try {
+			// SN: Fetch from Firebase first to ensure we have the latest data.
+			const firebaseData = await this.firebaseDataService.fetchAndCachePlayerData(player);
+			const reflexData = mapFirebaseToReflex(firebaseData, defaultPlayerData);
 			const document = await this.collection.load(`${player.UserId}`, [player.UserId]);
 
 			if (!player.IsDescendantOf(Players)) {
@@ -56,9 +85,14 @@ export class PlayerDataService {
 				return;
 			}
 
+			// SN: Load the combined data into the store.
+			store.loadPlayerData(tostring(player.UserId), reflexData);
+
+			// SN: Subscribe to changes and write to both datastores.
 			const unsubscribe = store.subscribe(selectPlayerData(tostring(player.UserId)), data => {
 				if (data) {
 					document.write(data);
+					this.firebaseDataService.set(player, mapReflexToFirebase(data));
 				}
 			});
 
@@ -67,12 +101,10 @@ export class PlayerDataService {
 				store.closePlayerData(tostring(player.UserId));
 			});
 
-			store.loadPlayerData(tostring(player.UserId), document.read());
-
 			return document;
 		} catch (err) {
 			this.logger.Warn(`Failed to load data for ${player.UserId}: ${err}`);
 			this.playerRemovalService.removeForBug(player, KickCode.PlayerProfileUndefined);
 		}
 	}
-}
+} 

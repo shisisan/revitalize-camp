@@ -1,7 +1,7 @@
 import { $NODE_ENV } from 'rbxts-transform-env';
 
 export enum GameId {
-    Development = 7989496185,
+    Development = 7993306480,
     Production = 7983173136,
 }
 

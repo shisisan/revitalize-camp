@@ -38,3 +38,12 @@ export function turnRadians(current: number, target: number, angle: number) {
     const amount = math.min(math.abs(difference), angle);
     return current + amount * sign;
 }
+
+/**
+ * Rounds `n` to the nearest `digits` digits
+ * @example roundDecimal(10.45687, 2) // 10.46
+ */
+export function roundDecimal(n: number, digits: number): number {
+    const mult = 10 ** digits;
+    return math.floor(n * mult + 0.5) / mult;
+}

@@ -4,6 +4,7 @@ import { achievementsSlice } from "./achievements";
 import { balanceSlice } from "./balance";
 import { mtxSlice } from "./mtx";
 import { settingsSlice } from "./settings";
+import { withMultiplayer } from "shared/functions/with-multiplayer";
 
 export * from "./achievements";
 export * from "./balance";
@@ -16,4 +17,4 @@ export const persistentSlice = combineProducers({
 	balance: balanceSlice,
 	mtx: mtxSlice,
 	settings: settingsSlice,
-});
+})

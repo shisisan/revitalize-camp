@@ -4,6 +4,7 @@ import Log from '@rbxts/log';
 
 import { GAME_NAME } from 'shared/constants/index';
 import { setupLogger } from 'shared/functions/setup-logger';
+import { startCenturion } from './centurion/centurion-start';
 
 function start(): void {
     setupLogger();
@@ -16,6 +17,11 @@ function start(): void {
 
     Log.Info('Flamework ignite!');
     Flamework.ignite();
+
+    Log.Info("Starting Centurion...");
+	startCenturion().catch(err => {
+		Log.Fatal(`Error while running centurion: ${err}`);
+	});
 }
 
 start();

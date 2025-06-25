@@ -4,6 +4,11 @@ interface ReplicatedStorage {
 		RuntimeLib: ModuleScript;
 	};
 	"TS": Folder & {
+		centurion: Folder & {
+			types: Folder & {
+				action: ModuleScript;
+			};
+		};
 		assets: ModuleScript;
 		constants: ModuleScript;
 		functions: Folder & {
@@ -49,6 +54,15 @@ interface ReplicatedStorage {
 
 interface ServerScriptService {
 	TS: Folder & {
+		centurion: Folder & {
+			commands: Folder & {
+				dispatch: ModuleScript;
+			};
+			guards: Folder & {
+				"is-admin": ModuleScript;
+			};
+			start: ModuleScript;
+		};
 		"mtx-service": ModuleScript;
 		"network": ModuleScript;
 		"player": Folder & {

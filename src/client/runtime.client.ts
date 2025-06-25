@@ -6,6 +6,7 @@ import { GAME_NAME } from 'shared/constants/index';
 import { setupLogger } from 'shared/functions/setup-logger';
 
 import { createApp, reactConfig } from './ui/react-config';
+import { startCenturion } from './centurion/centurion-start';
 
 function start(): void {
     reactConfig();
@@ -23,6 +24,11 @@ function start(): void {
     createApp().catch(() => {
         Log.Fatal('Failed to create React app!');
     });
+
+    Log.Info("Starting Centurion...");
+	startCenturion().catch(err => {
+		Log.Fatal(`Error while running centurion: ${err}`);
+	});
 }
 
 start();
