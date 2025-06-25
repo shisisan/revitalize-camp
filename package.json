@@ -35,6 +35,7 @@
         "@flamework/core": "catalog:prod",
         "@flamework/networking": "catalog:prod",
         "@rbxts/flamework-binary-serializer": "catalog:prod",
+        "@rbxts/flamework-meta-utils": "latest",
         "@rbxts/janitor": "catalog:prod",
         "@rbxts/lapis": "catalog:prod",
         "@rbxts/lapis-mockdatastore": "catalog:prod",
@@ -58,7 +59,10 @@
         "@rbxts/ui-labs": "catalog:prod",
         "@rbxts/validate-tree": "catalog:prod",
         "rbxts-transform-debug": "catalog:prod",
-        "rbxts-transform-env": "catalog:prod"
+        "rbxts-transform-env": "catalog:prod",
+        "@rbxts/firebase": "latest",
+        "@rbxts/centurion": "latest",
+        "@rbxts/centurion-ui": "latest"
     },
     "devDependencies": {
         "@commitlint/cli": "catalog:dev",
