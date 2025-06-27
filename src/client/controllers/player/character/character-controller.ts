@@ -1,17 +1,20 @@
-import type { OnStart } from "@flamework/core";
-import { Controller } from "@flamework/core";
-import type { Logger } from "@rbxts/log";
-import { Error } from "@rbxts/luau-polyfill";
+import { Controller, OnStart } from "@flamework/core";
+import { Logger } from "@rbxts/log";
+import { UserInputService } from "@rbxts/services";
 import Signal from "@rbxts/rbx-better-signal";
 import { promiseTree } from "@rbxts/validate-tree";
-
 import { LocalPlayer } from "client/constants";
+import { store } from "client/store";
+import { BASE_WALK_SPEED, SPRINT_SPEED } from "shared/constants/character";
 import {
 	CHARACTER_LOAD_TIMEOUT,
 	type CharacterRig,
 	characterSchema,
 	onCharacterAdded,
 } from "shared/util/player-util";
+import type { RootState } from "client/store";
+import type { CharacterState } from "shared/store/character";
+import { Error } from "@rbxts/luau-polyfill";
 
 /**
  * A controller for managing the current character rig in the game. We verify
@@ -37,6 +40,46 @@ export class CharacterController implements OnStart {
 				this.logger.Fatal(`Could not get character rig because:\n${err}`);
 			});
 		});
+
+		UserInputService.InputBegan.Connect(input => {
+			if (input.KeyCode === Enum.KeyCode.LeftShift) {
+				store.startSprinting();
+			}
+		});
+
+		UserInputService.InputEnded.Connect(input => {
+			if (input.KeyCode === Enum.KeyCode.LeftShift) {
+				store.stopSprinting();
+			}
+		});
+
+		store.subscribe(
+			(state: RootState) => state.character,
+			(characterState: CharacterState) => {
+				this.onSprintStateChanged(characterState.isSprinting);
+			},
+		);
+	}
+
+	/**
+	 * Starts sprinting.
+	 */
+	public startSprinting(): void {
+		store.startSprinting();
+	}
+
+	/**
+	 * Stops sprinting.
+	 */
+	public stopSprinting(): void {
+		store.stopSprinting();
+	}
+
+	private onSprintStateChanged(isSprinting: boolean): void {
+		if (!this.currentCharacter) {
+			return;
+		}
+		this.currentCharacter.Humanoid.WalkSpeed = isSprinting ? SPRINT_SPEED : BASE_WALK_SPEED;
 	}
 
 	/**
@@ -101,6 +144,7 @@ export class CharacterController implements OnStart {
 
 			connection.Disconnect();
 			this.currentCharacter = undefined;
+			store.stopSprinting();
 			this.onCharacterRemoving.Fire();
 		});
 	}
@@ -113,6 +157,7 @@ export class CharacterController implements OnStart {
 	private onRigLoaded(rig: CharacterRig): void {
 		this.logger.Debug("Loaded character rig.");
 		this.currentCharacter = rig;
+		this.onSprintStateChanged(store.getState().character.isSprinting);
 		this.onCharacterAdded.Fire(rig);
 	}
 }

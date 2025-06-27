@@ -1,31 +1,31 @@
-import type { OnStart } from "@flamework/core";
-import { Service } from "@flamework/core";
-import type { Logger } from "@rbxts/log";
-import { Error } from "@rbxts/luau-polyfill";
-import { PhysicsService } from "@rbxts/services";
-import { promiseTree } from "@rbxts/validate-tree";
+import type { OnStart } from '@flamework/core';
+import { Service } from '@flamework/core';
+import type { Logger } from '@rbxts/log';
+import { Error } from '@rbxts/luau-polyfill';
+import { PhysicsService } from '@rbxts/services';
+import { promiseTree } from '@rbxts/validate-tree';
 
-import type { ListenerData } from "shared/util/flamework-util";
-import { setupLifecycle } from "shared/util/flamework-util";
-import { addToCollisionGroup } from "shared/util/physics-util";
+import type { ListenerData } from 'shared/util/flamework-util';
+import { setupLifecycle } from 'shared/util/flamework-util';
+import { addToCollisionGroup } from 'shared/util/physics-util';
 import {
-	CHARACTER_LOAD_TIMEOUT,
-	type CharacterRig,
-	characterSchema,
-	loadCharacter,
-	onCharacterAdded,
-} from "shared/util/player-util";
-import CollisionGroup from "types/enum/collision-group";
-import { Tag } from "types/enum/tag";
+    CHARACTER_LOAD_TIMEOUT,
+    type CharacterRig,
+    characterSchema,
+    loadCharacter,
+    onCharacterAdded,
+} from 'shared/util/player-util';
+import CollisionGroup from 'types/enum/collision-group';
+import { Tag } from 'types/enum/tag';
 
-import type { PlayerEntity } from "../../services/player-core-services/player-entity";
-import type { OnPlayerJoin } from "../../services/player-core-services/player-service";
+import type { PlayerEntity } from '../../services/player-core-services/player-entity';
+import type { OnPlayerJoin } from '../../services/player-core-services/player-service';
 
 PhysicsService.RegisterCollisionGroup(CollisionGroup.Character);
 
 export interface OnCharacterAdded {
-	/** Fires when a character is added to the game. */
-	onCharacterAdded(character: CharacterRig, playerEntity: PlayerEntity): void;
+    /** Fires when a character is added to the game. */
+    onCharacterAdded(character: CharacterRig, playerEntity: PlayerEntity): void;
 }
 
 /**
@@ -37,157 +37,160 @@ export interface OnCharacterAdded {
  */
 @Service({})
 export class CharacterService implements OnStart, OnPlayerJoin {
-	private readonly characterAddedEvents = new Array<ListenerData<OnCharacterAdded>>();
-	private readonly characterRigs = new Map<Player, CharacterRig>();
+    private readonly characterAddedEvents = new Array<ListenerData<OnCharacterAdded>>();
+    private readonly characterRigs = new Map<Player, CharacterRig>();
 
-	constructor(private readonly logger: Logger) {}
+    constructor(private readonly logger: Logger) {}
 
-	/** @ignore */
-	public onStart(): void {
-		setupLifecycle<OnCharacterAdded>(this.characterAddedEvents);
-	}
+    /** @ignore */
+    public onStart(): void {
+        setupLifecycle<OnCharacterAdded>(this.characterAddedEvents);
+    }
 
-	/** @ignore */
-	public onPlayerJoin(playerEntity: PlayerEntity): void {
-		const { janitor, player } = playerEntity;
+    /** @ignore */
+    public onPlayerJoin(playerEntity: PlayerEntity): void {
+        const { janitor, player } = playerEntity;
 
-		janitor.Add(
-			onCharacterAdded(player, character => {
-				janitor.AddPromise(this.characterAdded(playerEntity, character)).catch(err => {
-					this.logger.Fatal(`Could not get character rig because:\n${err}`);
-				});
-			}),
-		);
-	}
+        janitor.Add(
+            onCharacterAdded(player, (character) => {
+                janitor.AddPromise(this.characterAdded(playerEntity, character)).catch((err) => {
+                    this.logger.Fatal(`Could not get character rig because:\n${err}`);
+                });
+            })
+        );
 
-	/**
-	 * Returns the character rig associated with the given player, if it exists.
-	 *
-	 * @param player - The player whose character rig to retrieve.
-	 * @returns The character rig associated with the player, or undefined if it
-	 *   does not exist.
-	 */
-	public getCharacterRig(player: Player): CharacterRig | undefined {
-		return this.characterRigs.get(player);
-	}
+        playerEntity.player.CameraMaxZoomDistance = 50;
+        playerEntity.player.CameraMinZoomDistance = 75;
+    }
 
-	/**
-	 * This method wraps a callback and replaces the first argument (that must
-	 * be of type `Player`) with that players `character rig`.
-	 *
-	 * @param func - The callback to wrap.
-	 * @returns A new callback that replaces the first argument with the
-	 *   player's character rig.
-	 */
-	public withPlayerRig<T extends Array<unknown>, R = void>(
-		func: (playerRig: CharacterRig, ...args: T) => R,
-	) {
-		return (player: Player, ...args: T): R | undefined => {
-			const playerRig = this.getCharacterRig(player);
-			if (!playerRig) {
-				this.logger.Info(`Could not get character rig for ${player.UserId}`);
-				return;
-			}
+    /**
+     * Returns the character rig associated with the given player, if it exists.
+     *
+     * @param player - The player whose character rig to retrieve.
+     * @returns The character rig associated with the player, or undefined if it
+     *   does not exist.
+     */
+    public getCharacterRig(player: Player): CharacterRig | undefined {
+        return this.characterRigs.get(player);
+    }
 
-			return func(playerRig, ...args);
-		};
-	}
+    /**
+     * This method wraps a callback and replaces the first argument (that must
+     * be of type `Player`) with that players `character rig`.
+     *
+     * @param func - The callback to wrap.
+     * @returns A new callback that replaces the first argument with the
+     *   player's character rig.
+     */
+    public withPlayerRig<T extends Array<unknown>, R = void>(
+        func: (playerRig: CharacterRig, ...args: T) => R
+    ) {
+        return (player: Player, ...args: T): R | undefined => {
+            const playerRig = this.getCharacterRig(player);
+            if (!playerRig) {
+                this.logger.Info(`Could not get character rig for ${player.UserId}`);
+                return;
+            }
 
-	private async characterAdded(playerEntity: PlayerEntity, model: Model): Promise<void> {
-		const promise = promiseTree(model, characterSchema);
+            return func(playerRig, ...args);
+        };
+    }
 
-		const { player } = playerEntity;
+    private async characterAdded(playerEntity: PlayerEntity, model: Model): Promise<void> {
+        const promise = promiseTree(model, characterSchema);
 
-		// If our character fails to load, we want to cancel the promise and
-		// attempt to load it again.
-		const timeout = Promise.delay(CHARACTER_LOAD_TIMEOUT).then(async () => {
-			promise.cancel();
-			return this.retryCharacterLoad(player);
-		});
+        const { player } = playerEntity;
 
-		// If our character is removed before it loads, we want to cancel.
-		const connection = model.AncestryChanged.Connect(() => {
-			if (model.IsDescendantOf(game)) {
-				return;
-			}
+        // If our character fails to load, we want to cancel the promise and
+        // attempt to load it again.
+        const timeout = Promise.delay(CHARACTER_LOAD_TIMEOUT).then(async () => {
+            promise.cancel();
+            return this.retryCharacterLoad(player);
+        });
 
-			promise.cancel();
-		});
+        // If our character is removed before it loads, we want to cancel.
+        const connection = model.AncestryChanged.Connect(() => {
+            if (model.IsDescendantOf(game)) {
+                return;
+            }
 
-		const [success, rig] = promise.await();
-		timeout.cancel();
-		connection.Disconnect();
+            promise.cancel();
+        });
 
-		if (!success) {
-			throw new Error(`Could not get character rig for ${player.UserId}`);
-		}
+        const [success, rig] = promise.await();
+        timeout.cancel();
+        connection.Disconnect();
 
-		this.listenForCharacterRemoving(player, model);
-		this.onRigLoaded(playerEntity, rig);
-	}
+        if (!success) {
+            throw new Error(`Could not get character rig for ${player.UserId}`);
+        }
 
-	private listenForCharacterRemoving(player: Player, character: Model): void {
-		const connection = character.AncestryChanged.Connect(() => {
-			if (character.IsDescendantOf(game)) {
-				return;
-			}
+        this.listenForCharacterRemoving(player, model);
+        this.onRigLoaded(playerEntity, rig);
+    }
 
-			this.logger.Verbose(`Character ${character.GetFullName()} has been removed.`);
+    private listenForCharacterRemoving(player: Player, character: Model): void {
+        const connection = character.AncestryChanged.Connect(() => {
+            if (character.IsDescendantOf(game)) {
+                return;
+            }
 
-			connection.Disconnect();
-			this.characterRemoving(player);
-		});
-	}
+            this.logger.Verbose(`Character ${character.GetFullName()} has been removed.`);
 
-	private onRigLoaded(playerEntity: PlayerEntity, rig: CharacterRig): void {
-		const { name, janitor, player, userId } = playerEntity;
+            connection.Disconnect();
+            this.characterRemoving(player);
+        });
+    }
 
-		janitor.Add(addToCollisionGroup(rig, CollisionGroup.Character, true), true);
-		rig.AddTag(Tag.PlayerCharacter);
-		this.characterRigs.set(player, rig);
+    private onRigLoaded(playerEntity: PlayerEntity, rig: CharacterRig): void {
+        const { name, janitor, player, userId } = playerEntity;
 
-		this.logger.Debug(`Loaded character rig for ${name}`);
+        janitor.Add(addToCollisionGroup(rig, CollisionGroup.Character, true), true);
+        rig.AddTag(Tag.PlayerCharacter);
+        this.characterRigs.set(player, rig);
 
-		debug.profilebegin("Lifecycle_Character_Added");
+        this.logger.Debug(`Loaded character rig for ${name}`);
 
-		for (const { id, event } of this.characterAddedEvents) {
-			janitor
-				.Add(
-					Promise.defer(() => {
-						debug.profilebegin(id);
-						event.onCharacterAdded(rig, playerEntity);
-					}),
-				)
-				.catch(err => {
-					this.logger.Error(`Error in character lifecycle ${id}: ${err}`);
-				});
-		}
+        debug.profilebegin('Lifecycle_Character_Added');
 
-		debug.profileend();
+        for (const { id, event } of this.characterAddedEvents) {
+            janitor
+                .Add(
+                    Promise.defer(() => {
+                        debug.profilebegin(id);
+                        event.onCharacterAdded(rig, playerEntity);
+                    })
+                )
+                .catch((err) => {
+                    this.logger.Error(`Error in character lifecycle ${id}: ${err}`);
+                });
+        }
 
-		janitor.AddPromise(this.characterAppearanceLoaded(player, rig)).catch(err => {
-			this.logger.Info(
-				`Character appearance did not load for ${userId}, with reason: ${err}`,
-			);
-		});
-	}
+        debug.profileend();
 
-	private async characterAppearanceLoaded(player: Player, rig: CharacterRig): Promise<void> {
-		if (!player.HasAppearanceLoaded()) {
-			await Promise.fromEvent(player.CharacterAppearanceLoaded).timeout(
-				CHARACTER_LOAD_TIMEOUT,
-			);
-		}
+        janitor.AddPromise(this.characterAppearanceLoaded(player, rig)).catch((err) => {
+            this.logger.Info(
+                `Character appearance did not load for ${userId}, with reason: ${err}`
+            );
+        });
+    }
 
-		rig.Head.AddTag(Tag.PlayerHead);
-	}
+    private async characterAppearanceLoaded(player: Player, rig: CharacterRig): Promise<void> {
+        if (!player.HasAppearanceLoaded()) {
+            await Promise.fromEvent(player.CharacterAppearanceLoaded).timeout(
+                CHARACTER_LOAD_TIMEOUT
+            );
+        }
 
-	private characterRemoving(player: Player): void {
-		this.characterRigs.delete(player);
-	}
+        rig.Head.AddTag(Tag.PlayerHead);
+    }
 
-	private async retryCharacterLoad(player: Player): Promise<void> {
-		this.logger.Warn(`Getting full rig for ${player.UserId} timed out. Retrying...`);
-		return loadCharacter(player);
-	}
+    private characterRemoving(player: Player): void {
+        this.characterRigs.delete(player);
+    }
+
+    private async retryCharacterLoad(player: Player): Promise<void> {
+        this.logger.Warn(`Getting full rig for ${player.UserId} timed out. Retrying...`);
+        return loadCharacter(player);
+    }
 }
