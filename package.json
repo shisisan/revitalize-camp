@@ -59,7 +59,8 @@
         "rbxts-transform-env": "catalog:prod",
         "@rbxts/firebase": "latest",
         "@rbxts/centurion": "latest",
-        "@rbxts/centurion-ui": "latest"
+        "@rbxts/centurion-ui": "latest",
+        "@rbxts/topbar-plus": "latest"
     },
     "devDependencies": {
         "@commitlint/cli": "catalog:dev",
