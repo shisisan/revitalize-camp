@@ -85,7 +85,7 @@
         "roblox-ts": "catalog:dev",
         "typescript": "catalog:dev"
     },
-    "packageManager": "pnpm@10.14.0",
+    "packageManager": "pnpm@10.34.5",
     "rbxts-build": {
         "syncLocation": "src/types/services.d.ts",
         "names": {
